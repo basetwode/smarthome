@@ -1,0 +1,114 @@
+import operator
+from queue import Queue
+from threading import Thread, Timer, current_thread
+
+from Actors.models import Actor
+from Application.settings import INSTANCE_TYPE
+from SmartHome.models import Event
+
+
+class Controller(Thread):
+    def __init__(self, queue):
+        super(Controller, self).__init__()
+        self.queue = queue
+        self.running = True
+        self.event_schedulers = {}
+
+    def run(self):
+        print("Controller started")
+        print("Starting event schedulers")
+
+        for event in Event.objects.all():
+            scheduler = EventScheduler(Queue(), event)
+            self.event_schedulers[str(event.id)] = scheduler
+            scheduler.start()
+
+        while self.running:
+            data = self.queue.get()
+            print("Received data", data)
+
+            associated_conditions = data.sensor.condition_set.all()
+            for condition in associated_conditions:
+                opr = getattr(operator, condition.condition)
+                result = opr(data.value, condition.trigger_value)
+                print(result)
+                associated_events = condition.event_set.all()
+                for event in associated_events:
+                    scheduler = self.event_schedulers[str(event.id)]
+                    event.action = str(result)
+                    scheduler.put_event(event)
+
+    def put_data(self, data):
+        self.queue.put(data)
+
+    def create_event_scheduler(self, event):
+        scheduler = EventScheduler(Queue(), event)
+        self.event_schedulers[event] = scheduler
+        scheduler.start()
+
+
+class EventScheduler(Thread):
+    def __init__(self, queue, event):
+        super(EventScheduler, self).__init__()
+        self.queue = queue
+        self.running = True
+        self.event = event
+        self.timer = None
+
+    def __exec_event(self, event=None):
+        print("Timer done turning of actors")
+        for action in self.event.actions.all():
+            actor = Actor.objects.get_subclass(id=action.actor.id)
+            actor.active_config = actor.off_config
+            actor.save()
+        self.event.action = 'False'
+        self.event.save()
+        print("Timer done")
+
+    def run(self):
+        print("EventScheduler ", self.event, ' running..', current_thread())
+        while self.running:
+            # block until controller sends an event
+            event = self.queue.get()
+            
+            print("received event: "+event.action)            
+            self.event.refresh_from_db()
+            if event.action == 'True':
+                if self.timer:
+                    print("canceling timer", self.timer)
+                    self.timer.cancel()
+                self.timer = Timer(self.event.duration, self.__exec_event) if self.event.duration > 0 else None
+                print(self.timer)
+                self.timer.start()
+                if event.action == 'True' and self.event.action == 'False':
+                    print('not running, starting therefore...')
+                    for action in self.event.actions.all():
+                        actor = Actor.objects.get_subclass(id=action.actor.id)
+                        action.save()
+                        actor.active_config = action.configuration
+                        actor.save()
+                    self.event.action = 'True'
+                    self.event.save()
+                #if self.timer:
+                #    self.timer.cancel()
+            #elif event.action == 'False':
+                #self.timer.cancel()
+                #self.timer = Timer(self.event.duration, self.__exec_event, [event])
+                #print(self.event.duration)
+                #self.timer.start()
+                #self.event.action = 'False'
+                #self.event.save()
+
+    def put_event(self, event):
+        self.queue.put(event)
+
+
+controller = None
+
+
+def setup():
+    global controller
+    print("Running this peer as ",INSTANCE_TYPE)
+    if INSTANCE_TYPE == 'SERVER'  and not controller:
+        controller = Controller(Queue())
+        controller.start()

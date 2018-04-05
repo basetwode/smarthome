@@ -1,0 +1,92 @@
+<html lang="en">
+{% load static %}
+
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <!-- Latest compiled and minified CSS -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
+          integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css"
+          integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"
+            integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
+            crossorigin="anonymous"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js"
+            integrity="sha384-DztdAPBWPRXSA/3eYEEUWrWCy7G5KFbe8fFjk5JAIxUYHKkDx6Qin1DkWx51bBrb"
+            crossorigin="anonymous"></script>
+
+    <link rel="stylesheet" href="{% static "css/bootstrap-colorpicker.css" %}">
+    <script src="{% static "js/bootstrap-colorpicker.js" %}"></script>
+    <script>
+        var colorpicker;
+        $(function () {
+            colorpicker = $('#cp1').colorpicker();
+            colorpicker.on('hidePicker',
+                function () {
+                    var rgb = $(this).colorpicker('getValue', '#ffffff');
+                    $.ajax({
+                        url: '',
+                        type: 'post',
+                        dataType: 'json',
+                        data: $('form#post_form').serialize() + "&color=" + rgb,
+                        success: function (data) {
+
+                        }
+                    });
+                });
+        });
+    </script>
+</head>
+
+
+<body>
+
+<nav class="navbar navbar-toggleable-md navbar-inverse bg-inverse fixed-top">
+
+    <a class="navbar-brand" href="#">Navbar</a>
+
+</nav>
+
+<div class="container">
+
+    <div class="starter-template">
+        <h1>Bootstrap starter template</h1>
+        <p class="lead">Use this document as a way to quickly start any new project.<br> All you get is this text and a
+            mostly barebones HTML document.</p>
+
+        <input id="cp1" type="text" class="form-control" value="#5367ce"/>
+        <form id="post_form">
+            <label>Frequency</label>
+            <input type="number" name="frequency" value="80">
+            <label>Party</label>
+            <input type="checkbox" name="party" >
+            <label>Alarm</label>
+            <input type="checkbox" name="alarm" >
+            {% csrf_token %}
+        </form>
+    </div>
+
+</div><!-- /.container -->
+
+
+<!-- Bootstrap core JavaScript
+================================================== -->
+<!-- Placed at the end of the document so the pages load faster -->
+
+</body>
+</html>
+
+
+
+

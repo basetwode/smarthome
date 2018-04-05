@@ -1,0 +1,8 @@
+daemon==1.1
+Django==1.11
+django-model-utils==3.0.0
+djangorestframework==3.6.2
+gpio==0.2.0
+pytz==2017.2
+requests==2.13.0
+requests-futures==0.9.7
