@@ -14,7 +14,7 @@ from Application.utils import create_request_context
 
 class Sensor(models.Model):
     name = models.CharField(max_length=10)
-    peer = models.ForeignKey('SmartHome.Peer')
+    peer = models.ForeignKey('SmartHome.Peer',on_delete=models.CASCADE)
 
     @staticmethod
     @abstractmethod
@@ -162,7 +162,7 @@ class MotionSensor(Sensor):
 
 class SensorData(models.Model):
     value = models.CharField(max_length=40)
-    sensor = models.ForeignKey(Sensor)
+    sensor = models.ForeignKey(Sensor,on_delete=models.CASCADE)
     date = models.DateTimeField(auto_now=True)
 
     @staticmethod

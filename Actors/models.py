@@ -13,6 +13,7 @@ from Application.utils import create_request_context
 
 
 class Configuration(models.Model):
+    objects = InheritanceManager()
     name = models.CharField(max_length=20)
 
     @staticmethod
@@ -77,11 +78,12 @@ class LEDConfiguration(Configuration):
 
 
 class Actor(models.Model):
+    objects = InheritanceManager()
     name = models.CharField(max_length=10)
-    peer = models.ForeignKey('SmartHome.Peer')
-    active_config = models.ForeignKey(Configuration, related_name='active_config')
-    on_config = models.ForeignKey(Configuration, related_name='on_config')
-    off_config = models.ForeignKey(Configuration, related_name='off_config')
+    peer = models.ForeignKey('SmartHome.Peer',on_delete=models.CASCADE)
+    active_config = models.ForeignKey(Configuration, related_name='active_config',on_delete=models.CASCADE)
+    on_config = models.ForeignKey(Configuration, related_name='on_config',on_delete=models.CASCADE)
+    off_config = models.ForeignKey(Configuration, related_name='off_config',on_delete=models.CASCADE)
     objects = InheritanceManager()
 
     @staticmethod

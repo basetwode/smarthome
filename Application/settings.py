@@ -24,7 +24,7 @@ SECRET_KEY = 'h9dcvnfyd5p$sef1&39#l)%4@&u4g4%$m0!^gag5k@841(wfz^'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['smart.bwk-technik.de']
+ALLOWED_HOSTS = []
 
 INSTANCE_TYPE = 'SERVER'
 # CLIENT or SERVER
@@ -41,7 +41,9 @@ INSTALLED_APPS = [
     'SmartHome',
     'Actors',
     'Sensors',
+    'oauth2_provider',
     'rest_framework',
+    'rest_framework.authtoken'
 ]
 
 MIDDLEWARE = [
@@ -89,15 +91,6 @@ DATABASES = {
     #     'ENGINE': 'django.db.backends.sqlite3',
     #     'NAME': os.path.join(BASE_DIR, 'db.old.sqlite3'),
     # }
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'xxxxx',
-        'USER': 'xxxxx',
-        'PASSWORD': 'xxxxx',
-        'HOST': 'smart.bwk-technik.de',
-        'PORT': '3306'
-    },
-
 }
 print(os.path.join(BASE_DIR, 'db.old.sqlite3'))
 # Password validation
@@ -135,3 +128,16 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
 
 STATIC_URL = '/static/'
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.BasicAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.TokenAuthentication',
+        'oauth2_provider.contrib.rest_framework.OAuth2Authentication',
+
+    ),
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
+    )
+}

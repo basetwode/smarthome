@@ -22,8 +22,8 @@ class Peer(models.Model):
 
 class Condition(models.Model):
     # if given this is an AND, if not this is an OR
-    pre_condition = models.ForeignKey('Condition', null=True, blank=True, related_name='post_condition')
-    sensor = models.ForeignKey(Sensor)
+    pre_condition = models.ForeignKey('Condition', null=True, blank=True, related_name='post_condition',on_delete=models.CASCADE)
+    sensor = models.ForeignKey(Sensor,on_delete=models.CASCADE)
     # the value to check
     trigger_value = models.CharField(max_length=100)
     # such as gt, eq, lt, ...
@@ -31,8 +31,8 @@ class Condition(models.Model):
 
 
 class Action(models.Model):
-    actor = models.ForeignKey(Actor)
-    configuration = models.ForeignKey(Configuration)
+    actor = models.ForeignKey(Actor,on_delete=models.CASCADE)
+    configuration = models.ForeignKey(Configuration,on_delete=models.CASCADE)
 
 
 class Event(models.Model):
